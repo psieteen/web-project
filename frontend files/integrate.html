@@ -11,7 +11,7 @@ document.getElementById('f').addEventListener('submit', async (e) => {
   const name = document.getElementById('name').value;
   const message = document.getElementById('message').value;
 
-  const res = await fetch('http://localhost:3000/feedback', {
+  const res = await fetch('https://web-project-rvov.onrender.com/feedback', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ name, message })
