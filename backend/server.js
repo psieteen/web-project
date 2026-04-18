@@ -1,4 +1,3 @@
-// Load environment variables
 require('dotenv').config();
 
 const express = require('express');
@@ -11,26 +10,23 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Connection (Atlas)
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+// Debug check (optional but useful)
+console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
 // Schema
-const Feedback = mongoose.model('Feedback', {
-  name: String,
-  message: String,
+const feedbackSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  message: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
-// Routes
+const Feedback = mongoose.model('Feedback', feedbackSchema);
 
-// Test route
+// Routes
 app.get('/', (req, res) => {
   res.send("API running");
 });
 
-// Save feedback
 app.post('/feedback', async (req, res) => {
   try {
     const { name, message } = req.body;
@@ -43,14 +39,23 @@ app.post('/feedback', async (req, res) => {
 
     res.json({ ok: true, id: newFeedback._id });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "Server error" });
+    console.error("FEEDBACK ERROR:", err);
+    res.status(500).json({ ok: false, error: err.message });
   }
 });
 
-// Start server
+// Start server ONLY after DB connects
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-});
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
