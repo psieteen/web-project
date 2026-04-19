@@ -18,14 +18,24 @@ app.use(rateLimit({
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
 // Schema
-const feedbackSchema = new mongoose.Schema({
+
+const commentSchema = new mongoose.Schema({
   postId: { type: String, required: true },
   name: { type: String, required: true },
   message: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
-const Comment = mongoose.model('Comment', feedbackSchema);
+const Comment = mongoose.model('Comment', commentSchema);
+
+const postSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  slug: { type: String, required: true, unique: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Post = mongoose.model('Post', postSchema);
 
 // Routes
 app.get('/', (req, res) => {
@@ -56,6 +66,50 @@ app.post('/comments', async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+
+app.post('/posts', async (req, res) => {
+  try {
+    const { title, content, slug } = req.body;
+
+    if (!title || !content || !slug) {
+      return res.status(400).json({ ok: false, error: "Missing fields" });
+    }
+
+    const post = await Post.create({
+      title: title.trim(),
+      content: content.trim(),
+      slug: slug.trim()
+    });
+
+    res.json({ ok: true, id: post._id });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.get('/posts', async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.get('/posts/:slug', async (req, res) => {
+  try {
+    const post = await Post.findOne({ slug: req.params.slug });
+
+    if (!post) {
+      return res.status(404).json({ ok: false, error: "Post not found" });
+    }
+
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.get('/comments/:postId', async (req, res) => {
   try {
     const comments = await Comment.find({
@@ -67,9 +121,19 @@ app.get('/comments/:postId', async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+
 app.delete('/comments/:id', async (req, res) => {
   try {
     await Comment.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.delete('/posts/:id', async (req, res) => {
+  try {
+    await Post.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
