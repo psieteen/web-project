@@ -67,6 +67,14 @@ app.get('/comments/:postId', async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+app.delete('/comments/:id', async (req, res) => {
+  try {
+    await Comment.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 // Start server ONLY after DB connects
 const PORT = process.env.PORT || 3000;
