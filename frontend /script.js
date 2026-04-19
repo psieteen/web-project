@@ -1,10 +1,8 @@
 const API = "https://web-project-rvov.onrender.com";
 
-// detect page
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 
-// homepage
 if (!slug) {
   loadPosts();
 } else {
@@ -12,33 +10,56 @@ if (!slug) {
   loadComments(slug);
 }
 
-// load all posts
+// ONLY ONE loadPosts()
 function loadPosts() {
   fetch(`${API}/posts`)
     .then(res => res.json())
     .then(posts => {
       const container = document.getElementById("posts");
 
-      posts.forEach(post => {
-        const div = document.createElement("div");
+      container.innerHTML = `<ul class="post-list"></ul>`;
+      const list = container.querySelector(".post-list");
 
-        div.innerHTML = `
-          <h2>${post.title}</h2>
-          <a href="post.html?slug=${post.slug}">Read More</a>
+      posts.forEach(post => {
+        const item = document.createElement("li");
+        item.className = "post-item";
+
+        item.innerHTML = `
+          <div class="post-meta">
+            <span class="post-date">
+              ${new Date(post.createdAt).toLocaleDateString()}
+            </span>
+            <span class="post-tag">Writing</span>
+          </div>
+
+          <h2>
+            <a href="post.html?slug=${post.slug}">
+              ${post.title}
+            </a>
+          </h2>
+
+          <p class="post-excerpt">
+            ${post.content.slice(0, 140)}...
+          </p>
+
+          <a class="read-more" href="post.html?slug=${post.slug}">
+            Read →
+          </a>
         `;
 
-        container.appendChild(div);
+        list.appendChild(item);
       });
     });
 }
 
-// load single post
 function loadPost(slug) {
   fetch(`${API}/posts/${slug}`)
     .then(res => res.json())
     .then(post => {
       document.getElementById("title").innerText = post.title;
-      document.getElementById("content").innerText = post.content;
+
+      // ✅ IMPORTANT FIX
+      document.getElementById("content").innerHTML = post.content;
     });
 }
 

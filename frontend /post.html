@@ -1,12 +1,23 @@
-<h1 id="title"></h1>
-<p id="content"></p>
+<div class="post-page container">
 
-<h3>Comments</h3>
+  <header class="post-page-header">
+    <h1 id="title"></h1>
+  </header>
 
-<div id="comments"></div>
+  <article id="content" class="article-body"></article>
 
-<input id="name" placeholder="Your name">
-<textarea id="message" placeholder="Your comment"></textarea>
-<button onclick="submitComment()">Send</button>
+  <section style="margin-top: 4rem;">
+    <h3>Comments</h3>
+
+    <div id="comments"></div>
+
+    <input id="name" placeholder="Your name">
+    <br><br>
+    <textarea id="message" placeholder="Your comment"></textarea>
+    <br><br>
+    <button onclick="submitComment()">Send</button>
+  </section>
+
+</div>
 
 <script src="script.js"></script>
