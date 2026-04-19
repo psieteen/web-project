@@ -15,31 +15,45 @@ console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
 // Schema
 const feedbackSchema = new mongoose.Schema({
+  postId: { type: String, required: true },
   name: { type: String, required: true },
   message: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }
 });
 
-const Feedback = mongoose.model('Feedback', feedbackSchema);
+const Comment = mongoose.model('Comment', feedbackSchema);
 
 // Routes
 app.get('/', (req, res) => {
   res.send("API running");
 });
-
-app.post('/feedback', async (req, res) => {
+app.post('/comments', async (req, res) => {
   try {
-    const { name, message } = req.body;
+    const { postId, name, message } = req.body;
 
-    if (!name || !message) {
+    if (!postId || !name || !message) {
       return res.status(400).json({ ok: false, error: "Missing fields" });
     }
 
-    const newFeedback = await Feedback.create({ name, message });
+    const comment = await Comment.create({
+      postId,
+      name: name.trim(),
+      message: message.trim()
+    });
 
-    res.json({ ok: true, id: newFeedback._id });
+    res.json({ ok: true, id: comment._id });
   } catch (err) {
-    console.error("FEEDBACK ERROR:", err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+app.get('/comments/:postId', async (req, res) => {
+  try {
+    const comments = await Comment.find({
+      postId: req.params.postId
+    }).sort({ createdAt: -1 });
+
+    res.json(comments);
+  } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
