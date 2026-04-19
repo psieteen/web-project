@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const rateLimit = require("express-rate-limit");
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -9,7 +10,10 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
-
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}));
 // Debug check (optional but useful)
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
@@ -34,7 +38,13 @@ app.post('/comments', async (req, res) => {
     if (!postId || !name || !message) {
       return res.status(400).json({ ok: false, error: "Missing fields" });
     }
-
+    if(!name.trim() || !message.trim()) {
+      return res.status(400).json({ok: false, error:"invalid input"});
+    }
+    if(name.length > 50 || message.length > 500) {
+      return res.status(400).json({ok: false, error: "Too long"});
+    }
+    
     const comment = await Comment.create({
       postId,
       name: name.trim(),
