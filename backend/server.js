@@ -191,9 +191,10 @@ app.get('/posts/:slug', async (req, res) => {
 });
 
 // ✅ EDIT POST - Add this after your POST /posts route
+
 app.put('/posts/:id', auth, async (req, res) => {
   try {
-    const { title, content, slug, excerpt, type } = req.body;
+    const { title, content, slug, excerpt, type, status } = req.body;
     
     const post = await Post.findByIdAndUpdate(
       req.params.id,
@@ -202,7 +203,8 @@ app.put('/posts/:id', auth, async (req, res) => {
         content, 
         slug, 
         excerpt: excerpt || content.slice(0, 140) + '...',
-        type: type || 'writing'
+        type: type || 'writing',
+        status: status || 'draft'
       },
       { new: true, runValidators: true }
     );

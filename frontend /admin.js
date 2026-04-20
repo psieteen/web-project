@@ -98,7 +98,8 @@ function submitPost() {
   });
 }
 
-// ✅ Edit post - populate form
+// Edit post - populate form
+
 function editPost(id, title, slug, content, type, status) {
   editingPostId = id;
   
