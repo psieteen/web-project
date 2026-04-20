@@ -1,8 +1,32 @@
-<h2>Admin Login</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Psi Eteen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<input id="username" placeholder="Username"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Psi Eteen</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Writing</a></li>
+      </ul>
+    </div>
+  </nav>
 
-<button onclick="login()">Login</button>
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    
+    <input type="text" id="username" placeholder="Username" class="login-input">
+    <input type="password" id="password" placeholder="Password" class="login-input">
+    
+    <button onclick="login()" class="login-btn">Login</button>
+  </div>
 
-<script src="login.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

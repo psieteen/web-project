@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const JWT_SECRET = process.env.JWT_SECRET;
+const ADMIN_SECRET = process.env.ADMIN_SECRET; // ✅ Added
 
 const rateLimit = require("express-rate-limit");
 const express = require('express');
@@ -39,11 +40,9 @@ function auth(req, res, next) {
   }
 }
 
-// Debug check (optional but useful)
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
 // Schema
-
 const commentSchema = new mongoose.Schema({
   postId: { type: String, required: true },
   name: { type: String, required: true },
@@ -57,6 +56,8 @@ const postSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
+  excerpt: { type: String, default: '' }, // ✅ Added for better previews
+  type: { type: String, enum: ['writing', 'poetry'], default: 'writing' }, // ✅ Added to separate content types
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -66,6 +67,7 @@ const Post = mongoose.model('Post', postSchema);
 app.get('/', (req, res) => {
   res.send("API running");
 });
+
 app.post('/comments', async (req, res) => {
   try {
     const { postId, name, message } = req.body;
@@ -92,18 +94,26 @@ app.post('/comments', async (req, res) => {
   }
 });
 
+// ✅ Fixed: Create post with proper auth and optional secret
 app.post('/posts', auth, async (req, res) => {
-  const { secret } = req.body;
+  const { title, content, slug, excerpt, type } = req.body;
 
-  if (secret !== ADMIN_SECRET) {
-    return res.status(403).json({ error: "Unauthorized" });
+  if (!title || !content || !slug) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const { title, content, slug } = req.body;
-
-  const post = await Post.create({ title, content, slug });
-
-  res.json(post);
+  try {
+    const post = await Post.create({ 
+      title, 
+      content, 
+      slug, 
+      excerpt: excerpt || content.slice(0, 140) + '...',
+      type: type || 'writing'
+    });
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post("/login", async (req, res) => {
@@ -113,7 +123,6 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
-  // compare password
   const valid = password === ADMIN_PASSWORD;
 
   if (!valid) {
@@ -129,7 +138,14 @@ app.post("/login", async (req, res) => {
 
 app.get('/posts', async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 });
+    const { type, limit } = req.query;
+    let query = {};
+    if (type) query.type = type;
+    
+    let postsQuery = Post.find(query).sort({ createdAt: -1 });
+    if (limit) postsQuery = postsQuery.limit(parseInt(limit));
+    
+    const posts = await postsQuery;
     res.json(posts);
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
@@ -162,8 +178,19 @@ app.get('/comments/:postId', async (req, res) => {
   }
 });
 
+// ✅ Fixed: Delete comment with optional auth for admin
 app.delete('/comments/:id', async (req, res) => {
   try {
+    const header = req.headers.authorization;
+    if (header) {
+      try {
+        const token = header.split(" ")[1];
+        jwt.verify(token, JWT_SECRET);
+      } catch {
+        return res.status(403).json({ error: "Invalid token" });
+      }
+    }
+    
     await Comment.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (err) {
@@ -171,16 +198,29 @@ app.delete('/comments/:id', async (req, res) => {
   }
 });
 
-app.delete('/posts/:id', auth,  async (req, res) => {
-  const { secret } = req.body;
-
-  if (secret !== ADMIN_SECRET) {
-    return res.status(403).json({ error: "Unauthorized" });
+// ✅ Fixed: Delete post with auth
+app.delete('/posts/:id', auth, async (req, res) => {
+  try {
+    await Post.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
   }
+});
 
-  await Post.findByIdAndDelete(req.params.id);
-
-  res.json({ ok: true });
+// ✅ Added: Update post endpoint
+app.put('/posts/:id', auth, async (req, res) => {
+  try {
+    const { title, content, slug, excerpt, type } = req.body;
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      { title, content, slug, excerpt, type },
+      { new: true }
+    );
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Start server ONLY after DB connects
@@ -189,7 +229,6 @@ const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

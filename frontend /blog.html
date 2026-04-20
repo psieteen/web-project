@@ -1,10 +1,45 @@
-<main class="container">
-  <h1 > Writing</h1>
-
-  <!-- this is where JS injects posts -->
-  <div id="posts" ></div>
-</main>
-<head> <link rel="stylesheet" href="style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="All writing by Psi Eteen — essays on psychology, philosophy, and human behavior.">
+  <title>Writing — Psi Eteen</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+<body>
 
-<script src="script.js"></script>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Psi Eteen</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html" class="active">Writing</a></li>
+        <li><a href="poetry.html">Poetries</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-header">
+      <h1>Writing</h1>
+      <p class="lead">Essays on psychology, philosophy, power structures, and the quiet mechanisms that shape how we think.</p>
+    </header>
+
+    <div id="posts"></div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>&copy; 2026 Psi Eteen</p>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Writing</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

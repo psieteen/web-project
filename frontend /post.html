@@ -1,25 +1,70 @@
-<div class="post-page container">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Reading — Psi Eteen">
+  <title>Post — Psi Eteen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  <header class="post-page-header">
-    <h1 id="title"></h1>
-  </header>
-  
-  <head> <link rel="stylesheet" href="style.css"> </head>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Psi Eteen</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Writing</a></li>
+        <li><a href="poetry.html">Poetries</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </div>
+  </nav>
 
-  <article id="content" class="article-body"></article>
+  <main class="container">
+    <article class="post-page">
+      <header class="post-page-header">
+        <div class="post-page-meta">
+          <span class="post-date" id="post-date"></span>
+          <span class="post-tag" id="post-type">Writing</span>
+        </div>
+        <h1 id="title"></h1>
+      </header>
 
-  <section style="margin-top: 4rem;">
-    <h3>Comments</h3>
+      <div id="content" class="article-body"></div>
 
-    <div id="comments"></div>
+      <nav class="post-nav">
+        <a href="blog.html"><span class="back-arrow">←</span> All writing</a>
+        <a href="index.html">Home</a>
+      </nav>
 
-    <input id="name" placeholder="Your name">
-    <br><br>
-    <textarea id="message" placeholder="Your comment"></textarea>
-    <br><br>
-    <button onclick="submitComment()">Send</button>
-  </section>
+      <section class="comments-section">
+        <h3>Comments</h3>
+        <div id="comments" class="comments-list"></div>
 
-</div>
+        <form id="comment-form" class="comment-form">
+          <div class="form-group">
+            <input type="text" id="name" placeholder="Your name" required>
+          </div>
+          <div class="form-group">
+            <textarea id="message" placeholder="Your comment" rows="4" required></textarea>
+          </div>
+          <button type="submit" class="comment-submit">Post comment</button>
+        </form>
+      </section>
+    </article>
+  </main>
 
-<script src="script.js"></script>
+  <footer>
+    <div class="footer-inner">
+      <p>&copy; 2026 Psi Eteen</p>
+      <ul class="footer-links">
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Writing</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

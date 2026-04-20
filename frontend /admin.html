@@ -1,26 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Panel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Psi Eteen</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="container">
+<body>
 
-<h1>Admin Panel</h1>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Psi Eteen</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Writing</a></li>
+        <li><button onclick="logout()" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
 
-<h3>Create Post</h3>
+  <main class="admin-container">
+    <h1>Admin Panel</h1>
 
-<input id="title" placeholder="Title"><br><br>
-<input id="slug" placeholder="Slug"><br><br>
-<textarea id="content" placeholder="Content"></textarea><br><br>
+    <section class="admin-section">
+      <h3>Create New Post</h3>
+      
+      <input type="text" id="title" placeholder="Post Title" class="admin-input">
+      <input type="text" id="slug" placeholder="url-friendly-slug" class="admin-input">
+      
+      <select id="type" class="admin-select">
+        <option value="writing">Writing</option>
+        <option value="poetry">Poetry</option>
+      </select>
+      
+      <textarea id="content" placeholder="Write your post content here... (HTML supported)" class="admin-textarea"></textarea>
+      
+      <button onclick="createPost()" class="admin-btn">Publish Post</button>
+    </section>
 
-<button onclick="createPost()">Publish</button>
+    <section class="admin-section">
+      <h3>Manage Posts</h3>
+      <div id="admin-posts"></div>
+    </section>
+  </main>
 
-<hr>
-
-<h3>All Posts</h3>
-<div id="admin-posts"></div>
-
+  <script src="admin.js"></script>
 </body>
-<script src="admin.js"></script>
 </html>
