@@ -232,6 +232,56 @@ app.get('/comments/:postId', async (req, res) => {
   }
 });
 
+// ✅ RSS Feed endpoint
+app.get('/feed.xml', async (req, res) => {
+  try {
+    const posts = await Post.find({ status: 'published' })
+      .sort({ createdAt: -1 })
+      .limit(20);
+    
+    const siteUrl = process.env.SITE_URL || 'https://psieteen.vercel.app';
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Psi Eteen</title>
+    <description>Ideas worth sitting with. Writing on psychology, philosophy, power, and the quiet mechanisms that shape how we think.</description>
+    <link>${siteUrl}</link>
+    <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
+    <language>en</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`;
+    
+    posts.forEach(post => {
+      const postUrl = `${siteUrl}/post.html?slug=${post.slug}`;
+      const date = new Date(post.createdAt).toUTCString();
+      
+      // Clean content: remove HTML tags for description, or keep a preview
+      const description = post.excerpt || post.content.replace(/<[^>]*>/g, '').slice(0, 300) + '...';
+      
+      xml += `
+    <item>
+      <title><![CDATA[${post.title}]]></title>
+      <description><![CDATA[${description}]]></description>
+      <link>${postUrl}</link>
+      <guid isPermaLink="true">${postUrl}</guid>
+      <pubDate>${date}</pubDate>
+    </item>`;
+    });
+    
+    xml += `
+  </channel>
+</rss>`;
+    
+    res.set('Content-Type', 'application/rss+xml');
+    res.send(xml);
+    
+  } catch (err) {
+    console.error("RSS feed error:", err);
+    res.status(500).send("Error generating feed");
+  }
+});
+
+
 // ✅ Fixed: Delete comment with optional auth for admin
 app.delete('/comments/:id', async (req, res) => {
   try {
