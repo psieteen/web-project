@@ -1,5 +1,10 @@
 const API = "https://web-project-rvov.onrender.com";
-const SECRET = "PSi\|/:-13"
+const token = localStorage.getItem("token");
+
+if (!token) {
+    alert("Please login first");
+  window.location.href = "login.html";
+}
 // CREATE POST
 function createPost() {
   const title = document.getElementById("title").value;
@@ -10,6 +15,7 @@ function createPost() {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
+      "Authorization": `Bearer ${token}`
     },
     body: JSON.stringify({ title, slug, content, secret: SECRET  })
   }).then(() => {
@@ -44,10 +50,10 @@ function loadAdminPosts() {
 function deletePost(id) {
   fetch(`${API}/posts/${id}`, {
     method: "DELETE",
-    headers: {"Content-type": "application/json"},
-    body: JSON.stringify ({ 
-        secret: SECRET
-    })
+    headers: {
+        "Authorization": `Bearer ${token}`
+    }
+   
   }).then(() => {
     loadAdminPosts();
   });
