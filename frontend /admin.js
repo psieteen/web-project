@@ -6,6 +6,7 @@ if (!token) {
   window.location.href = "login.html";
 }
 
+
 // Initialize Quill editor
 const quill = new Quill('#editor-container', {
   theme: 'snow',
@@ -18,9 +19,37 @@ const quill = new Quill('#editor-container', {
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       ['link'],
       ['clean']
-    ]
+    ],
+    clipboard: {
+      matchVisual: false
+    }
   }
 });
+
+//  Ctrl+Shift+V to paste HTML
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+    e.preventDefault();
+    navigator.clipboard.readText().then(text => {
+      quill.clipboard.dangerouslyPasteHTML(text);
+    }).catch(err => {
+      console.error("Failed to paste HTML:", err);
+      alert("Could not paste HTML. Try pasting normally.");
+    });
+  }
+});
+
+//  Add a small hint in the UI
+const toolbar = document.querySelector('.ql-toolbar');
+if (toolbar) {
+  const hint = document.createElement('span');
+  hint.style.marginLeft = 'auto';
+  hint.style.fontSize = '0.7rem';
+  hint.style.color = 'var(--muted)';
+  hint.style.paddingRight = '10px';
+  hint.innerHTML = 'Ctrl+Shift+V for HTML';
+  toolbar.appendChild(hint);
+}
 
 // Track editing state
 let editingPostId = null;
