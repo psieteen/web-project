@@ -58,6 +58,7 @@ const postSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true },
   excerpt: { type: String, default: '' }, // ✅ Added for better previews
   type: { type: String, enum: ['writing', 'poetry'], default: 'writing' }, // ✅ Added to separate content types
+  status: { type: String, enum: ['draft', 'published'], default: 'draft' }, 
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -138,9 +139,32 @@ app.post("/login", async (req, res) => {
 
 app.get('/posts', async (req, res) => {
   try {
-    const { type, limit } = req.query;
+    const { type, limit, status } = req.query;
     let query = {};
+    
     if (type) query.type = type;
+    
+    // ✅ Check if request is from admin (has auth header)
+    const authHeader = req.headers.authorization;
+    let isAdmin = false;
+    
+    if (authHeader) {
+      try {
+        const token = authHeader.split(" ")[1];
+        jwt.verify(token, JWT_SECRET);
+        isAdmin = true;
+      } catch {
+        // Invalid token - treat as public
+      }
+    }
+    
+    // Public requests only see published posts
+    // Admin requests see all (or filtered by status param)
+    if (!isAdmin) {
+      query.status = 'published';
+    } else if (status) {
+      query.status = status;
+    }
     
     let postsQuery = Post.find(query).sort({ createdAt: -1 });
     if (limit) postsQuery = postsQuery.limit(parseInt(limit));
@@ -165,6 +189,34 @@ app.get('/posts/:slug', async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+
+// ✅ EDIT POST - Add this after your POST /posts route
+app.put('/posts/:id', auth, async (req, res) => {
+  try {
+    const { title, content, slug, excerpt, type } = req.body;
+    
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      { 
+        title, 
+        content, 
+        slug, 
+        excerpt: excerpt || content.slice(0, 140) + '...',
+        type: type || 'writing'
+      },
+      { new: true, runValidators: true }
+    );
+    
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    
+    res.json(post);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 app.get('/comments/:postId', async (req, res) => {
   try {
