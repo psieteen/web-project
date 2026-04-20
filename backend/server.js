@@ -68,23 +68,17 @@ app.post('/comments', async (req, res) => {
 });
 
 app.post('/posts', async (req, res) => {
-  try {
-    const { title, content, slug } = req.body;
+  const { secret } = req.body;
 
-    if (!title || !content || !slug) {
-      return res.status(400).json({ ok: false, error: "Missing fields" });
-    }
-
-    const post = await Post.create({
-      title: title.trim(),
-      content: content.trim(),
-      slug: slug.trim()
-    });
-
-    res.json({ ok: true, id: post._id });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
+  if (secret !== ADMIN_SECRET) {
+    return res.status(403).json({ error: "Unauthorized" });
   }
+
+  const { title, content, slug } = req.body;
+
+  const post = await Post.create({ title, content, slug });
+
+  res.json(post);
 });
 
 app.get('/posts', async (req, res) => {
@@ -132,12 +126,15 @@ app.delete('/comments/:id', async (req, res) => {
 });
 
 app.delete('/posts/:id', async (req, res) => {
-  try {
-    await Post.findByIdAndDelete(req.params.id);
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
+  const { secret } = req.body;
+
+  if (secret !== ADMIN_SECRET) {
+    return res.status(403).json({ error: "Unauthorized" });
   }
+
+  await Post.findByIdAndDelete(req.params.id);
+
+  res.json({ ok: true });
 });
 
 // Start server ONLY after DB connects

@@ -1,5 +1,5 @@
 const API = "https://web-project-rvov.onrender.com";
-
+const SECRET = "PSi\|/:-13"
 // CREATE POST
 function createPost() {
   const title = document.getElementById("title").value;
@@ -11,7 +11,7 @@ function createPost() {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ title, slug, content })
+    body: JSON.stringify({ title, slug, content, secret: SECRET  })
   }).then(() => {
     alert("Post created");
     loadAdminPosts();
@@ -43,7 +43,11 @@ function loadAdminPosts() {
 // DELETE POST
 function deletePost(id) {
   fetch(`${API}/posts/${id}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: {"Content-type": "application/json"},
+    body: JSON.stringify ({ 
+        secret: SECRET
+    })
   }).then(() => {
     loadAdminPosts();
   });
