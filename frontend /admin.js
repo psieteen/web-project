@@ -14,8 +14,9 @@ function createPost() {
   fetch(`${API}/posts`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
+      
     },
     body: JSON.stringify({ title, slug, content, secret: SECRET  })
   }).then(() => {
