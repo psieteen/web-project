@@ -17,7 +17,9 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['https://psieteen.vercel.app', 'https://web-project-ochre-gamma.vercel.app']
+}));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100
