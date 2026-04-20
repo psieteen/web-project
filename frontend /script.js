@@ -1,4 +1,161 @@
 const API = "https://web-project-rvov.onrender.com";
+// ─── Search Functionality ───
+let allPosts = [];
+let searchInput, searchClear, searchResults;
+
+document.addEventListener('DOMContentLoaded', function() {
+  searchInput = document.getElementById('search-input');
+  searchClear = document.getElementById('search-clear');
+  searchResults = document.getElementById('search-results');
+  
+  if (searchInput) {
+    // Load all posts for search
+    fetch(`${API}/posts`)
+      .then(res => res.json())
+      .then(posts => {
+        allPosts = posts;
+      })
+      .catch(err => console.error("Error loading posts for search:", err));
+    
+    // Search input handler
+    let debounceTimer;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      
+      const query = this.value.trim();
+      
+      // Show/hide clear button
+      if (searchClear) {
+        searchClear.style.display = query ? 'flex' : 'none';
+      }
+      
+      if (query.length < 2) {
+        hideSearchResults();
+        return;
+      }
+      
+      debounceTimer = setTimeout(() => {
+        performSearch(query);
+      }, 200);
+    });
+    
+    // Clear button
+    if (searchClear) {
+      searchClear.addEventListener('click', function() {
+        searchInput.value = '';
+        this.style.display = 'none';
+        hideSearchResults();
+        searchInput.focus();
+      });
+    }
+    
+    // Close results when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-search') && !e.target.closest('.search-results')) {
+        hideSearchResults();
+      }
+    });
+    
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        hideSearchResults();
+        searchInput.blur();
+      }
+    });
+    
+    // Focus handler
+    searchInput.addEventListener('focus', function() {
+      if (this.value.trim().length >= 2) {
+        performSearch(this.value.trim());
+      }
+    });
+  }
+});
+
+function performSearch(query) {
+  if (!allPosts.length) {
+    showNoResults();
+    return;
+  }
+  
+  query = query.toLowerCase();
+  
+  const results = allPosts.filter(post => {
+    const titleMatch = post.title.toLowerCase().includes(query);
+    const contentMatch = post.content.toLowerCase().includes(query);
+    return titleMatch || contentMatch;
+  });
+  
+  if (results.length === 0) {
+    showNoResults();
+    return;
+  }
+  
+  displaySearchResults(results, query);
+}
+
+function displaySearchResults(results, query) {
+  if (!searchResults) return;
+  
+  searchResults.innerHTML = '';
+  
+  results.slice(0, 8).forEach(post => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    
+    const title = highlightText(post.title, query);
+    const date = new Date(post.createdAt).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short'
+    });
+    
+    item.innerHTML = `
+      <div class="search-result-title">${title}</div>
+      <div class="search-result-meta">
+        <span class="search-result-type">${post.type || 'writing'}</span>
+        <span>${date}</span>
+      </div>
+    `;
+    
+    item.addEventListener('click', () => {
+      window.location.href = `post.html?slug=${post.slug}`;
+    });
+    
+    searchResults.appendChild(item);
+  });
+  
+  if (results.length > 8) {
+    const moreItem = document.createElement('div');
+    moreItem.className = 'search-result-item';
+    moreItem.style.textAlign = 'center';
+    moreItem.style.color = 'var(--muted)';
+    moreItem.innerHTML = `+ ${results.length - 8} more results...`;
+    searchResults.appendChild(moreItem);
+  }
+  
+  searchResults.style.display = 'block';
+}
+
+function highlightText(text, query) {
+  if (!query) return text;
+  
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return text.replace(regex, '<span class="search-highlight">$1</span>');
+}
+
+function showNoResults() {
+  if (!searchResults) return;
+  
+  searchResults.innerHTML = '<div class="search-no-results">No posts found</div>';
+  searchResults.style.display = 'block';
+}
+
+function hideSearchResults() {
+  if (searchResults) {
+    searchResults.style.display = 'none';
+  }
+}
 const params = new URLSearchParams(window.location.search);
 const slug = params.get("slug");
 

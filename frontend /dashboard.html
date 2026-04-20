@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Psi Eteen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Psi Eteen</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Writing</a></li>
+        <li><a href="admin.html">Admin</a></li>
+        <li><button onclick="logout()" class="logout-btn">Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="dashboard-container">
+    <h1>Dashboard</h1>
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="total-posts">—</div>
+        <div class="stat-label">Total Posts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="published-posts">—</div>
+        <div class="stat-label">Published</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="draft-posts">—</div>
+        <div class="stat-label">Drafts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="total-comments">—</div>
+        <div class="stat-label">Comments</div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <a href="admin.html" class="dashboard-btn primary">✏️ New Post</a>
+      <a href="admin.html" class="dashboard-btn secondary">📋 Manage Posts</a>
+      <a href="index.html" class="dashboard-btn secondary">👁️ View Site</a>
+    </div>
+    
+    <!-- Recent Posts -->
+    <section class="dashboard-section">
+      <h2>Recent Posts</h2>
+      <div id="recent-posts" class="recent-list"></div>
+    </section>
+    
+    <!-- Recent Comments -->
+    <section class="dashboard-section">
+      <h2>Recent Comments</h2>
+      <div id="recent-comments" class="recent-list"></div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

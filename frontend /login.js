@@ -13,7 +13,7 @@ function login() {
     .then(data => {
       if (data.token) {
         localStorage.setItem("token", data.token);
-        window.location.href = "admin.html";
+        window.location.href = "dashboard.html";
       } else {
         alert("Invalid credentials");
       }

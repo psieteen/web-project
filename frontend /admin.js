@@ -1,5 +1,11 @@
 const API = "https://web-project-rvov.onrender.com";
 const token = localStorage.getItem("token");
+
+if (!token) {
+  alert("Please login first");
+  window.location.href = "login.html";
+}
+
 // Initialize Quill editor
 const quill = new Quill('#editor-container', {
   theme: 'snow',
@@ -16,11 +22,6 @@ const quill = new Quill('#editor-container', {
   }
 });
 
-if (!token) {
-  alert("Please login first");
-  window.location.href = "login.html";
-}
-
 // Track editing state
 let editingPostId = null;
 
@@ -28,7 +29,6 @@ let editingPostId = null;
 function submitPost() {
   const title = document.getElementById("title").value.trim();
   const slug = document.getElementById("slug").value.trim().toLowerCase().replace(/\s+/g, '-');
-  const content = document.getElementById("content").value;
   const content = quill.root.innerHTML;
   const type = document.getElementById("type").value;
   const status = document.getElementById("status").value;
@@ -70,13 +70,13 @@ function submitPost() {
 }
 
 // ✅ Edit post - populate form
-function editPost(id, title, slug, content, type) {
+function editPost(id, title, slug, content, type, status) {
   editingPostId = id;
   
   document.getElementById("form-title").innerText = "Edit Post";
   document.getElementById("title").value = title;
   document.getElementById("slug").value = slug;
- quill.root.innerHTML = content;
+  quill.root.innerHTML = content;
   document.getElementById("type").value = type || "writing";
   document.getElementById("status").value = status || "draft";
   document.getElementById("editing-id").value = id;
@@ -84,7 +84,6 @@ function editPost(id, title, slug, content, type) {
   document.getElementById("submit-btn").innerText = "Update Post";
   document.getElementById("cancel-btn").style.display = "inline-block";
   
-  // Scroll to form
   document.querySelector(".admin-section").scrollIntoView({ behavior: "smooth" });
 }
 
@@ -149,14 +148,14 @@ function loadAdminPosts() {
           <div class="admin-post-meta">
             <span class="admin-post-date">${date}</span>
             <span class="admin-post-type">${post.type || 'writing'}</span>
-            <span class="admin-post-status ${post.status || 'draft'}">${post.status || 'draft'} </span>
+            <span class="admin-post-status ${post.status || 'draft'}">${post.status || 'draft'}</span>
           </div>
         </div>
         <div class="admin-post-actions">
-       <button onclick="editPost('${post._id}', '${escapeJs(post.title)}', '${escapeJs(post.slug)}', '${escapeJs(post.content)}', '${post.type || 'writing'}', '${post.status || 'draft'}')" class="admin-edit-btn">Edit</button>
-    <button onclick="deletePost('${post._id}')" class="admin-delete-btn">Delete</button>
-  </div>
-`;
+          <button onclick="editPost('${post._id}', '${escapeJs(post.title)}', '${escapeJs(post.slug)}', '${escapeJs(post.content)}', '${post.type || 'writing'}', '${post.status || 'draft'}')" class="admin-edit-btn">Edit</button>
+          <button onclick="deletePost('${post._id}')" class="admin-delete-btn">Delete</button>
+        </div>
+      `;
 
       container.appendChild(div);
     });
@@ -186,7 +185,6 @@ function deletePost(id) {
   .then(data => {
     if (!data) return;
     
-    // If we just deleted the post we were editing, reset form
     if (editingPostId === id) {
       resetForm();
     }
@@ -201,6 +199,7 @@ function deletePost(id) {
 
 // ✅ Helper: Escape HTML
 function escapeHtml(text) {
+  if (!text) return '';
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
@@ -208,9 +207,11 @@ function escapeHtml(text) {
 
 // ✅ Helper: Escape for JavaScript string
 function escapeJs(text) {
-  return text.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+  if (!text) return '';
+  return text.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '');
 }
 
+// ✅ LOGOUT FUNCTION - Make sure this exists!
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "login.html";

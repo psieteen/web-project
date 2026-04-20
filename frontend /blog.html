@@ -10,16 +10,26 @@
 <body>
 
   <nav>
-    <div class="nav-inner">
-      <a href="index.html" class="nav-brand">Psi Eteen</a>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="blog.html" class="active">Writing</a></li>
-        <li><a href="poetry.html">Poetries</a></li>
-        <li><a href="about.html">About</a></li>
-      </ul>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">Psi Eteen</a>
+    
+    <!-- ✅ Search Bar -->
+    <div class="nav-search">
+      <input type="text" id="search-input" placeholder="Search..." class="search-input">
+      <button id="search-clear" class="search-clear" style="display: none;">×</button>
     </div>
-  </nav>
+    
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="blog.html">Writing</a></li>
+      <li><a href="poetry.html">Poetries</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+  </div>
+  
+  <!-- ✅ Search Results Dropdown -->
+  <div id="search-results" class="search-results" style="display: none;"></div>
+</nav>
 
   <main class="container">
     <header class="page-header">
