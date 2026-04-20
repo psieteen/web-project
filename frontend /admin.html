@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="container">
+
+<h1>Admin Panel</h1>
+
+<h3>Create Post</h3>
+
+<input id="title" placeholder="Title"><br><br>
+<input id="slug" placeholder="Slug"><br><br>
+<textarea id="content" placeholder="Content"></textarea><br><br>
+
+<button onclick="createPost()">Publish</button>
+
+<hr>
+
+<h3>All Posts</h3>
+<div id="admin-posts"></div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>
