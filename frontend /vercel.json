@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/feed.xml",
+      "destination": "https://web-project-rvov.onrender.com/feed.xml"
+    }
+  ]
+}
