@@ -312,21 +312,6 @@ app.delete('/posts/:id', auth, async (req, res) => {
   }
 });
 
-// ✅ Added: Update post endpoint
-app.put('/posts/:id', auth, async (req, res) => {
-  try {
-    const { title, content, slug, excerpt, type } = req.body;
-    const post = await Post.findByIdAndUpdate(
-      req.params.id,
-      { title, content, slug, excerpt, type },
-      { new: true }
-    );
-    res.json(post);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // Start server ONLY after DB connects
 const PORT = process.env.PORT || 3000;
 
