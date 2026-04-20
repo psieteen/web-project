@@ -15,7 +15,7 @@ function login() {
         localStorage.setItem("token", data.token);
         window.location.href = "admin.html";
       } else {
-        alert("Login failed");
+        alert("Invalid credentials");
       }
     });
 }

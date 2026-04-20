@@ -18,33 +18,64 @@ function createPost() {
       "Authorization": `Bearer ${token}`
       
     },
-    body: JSON.stringify({ title, slug, content, secret: SECRET  })
-  }).then(() => {
-    alert("Post created");
-    loadAdminPosts();
-  });
-}
+    body: JSON.stringify({ title, slug, content })
+  })
+  .then(res => {
+    //auth check
+    if (res.status === 401|| res.status === 403) {
+    logout();
+    return;
+    }
+    return res.json();
+  })
+    .then(data => {
+     if(!data) return;
 
+     alert("post created");
+     loadAdminPosts();
+    })
+     .catch(err => {
+      console.error("Create post error:",err);
+
+     });
+    }
 // LOAD POSTS
 function loadAdminPosts() {
-  fetch(`${API}/posts`)
-    .then(res => res.json())
-    .then(posts => {
-      const container = document.getElementById("admin-posts");
-      container.innerHTML = "";
+  fetch(`${API}/posts`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  .then(res => {
+    // 🔐 auth check
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      return;
+    }
 
-      posts.forEach(post => {
-        const div = document.createElement("div");
+    return res.json();
+  })
+  .then(posts => {
+    if (!posts) return;
 
-        div.innerHTML = `
-          <p><b>${post.title}</b></p>
-          <button onclick="deletePost('${post._id}')">Delete</button>
-          <hr>
-        `;
+    const container = document.getElementById("admin-posts");
+    container.innerHTML = "";
 
-        container.appendChild(div);
-      });
+    posts.forEach(post => {
+      const div = document.createElement("div");
+
+      div.innerHTML = `
+        <p><b>${post.title}</b></p>
+        <button onclick="deletePost('${post._id}')">Delete</button>
+        <hr>
+      `;
+
+      container.appendChild(div);
     });
+  })
+  .catch(err => {
+    console.error("Load posts error:", err);
+  });
 }
 
 // DELETE POST
@@ -52,13 +83,30 @@ function deletePost(id) {
   fetch(`${API}/posts/${id}`, {
     method: "DELETE",
     headers: {
-        "Authorization": `Bearer ${token}`
+      "Authorization": `Bearer ${token}`
     }
-   
-  }).then(() => {
+  })
+  .then(res => {
+    // 🔐 auth check
+    if (res.status === 401 || res.status === 403) {
+      logout();
+      return;
+    }
+
+    return res.json();
+  })
+  .then(data => {
+    if (!data) return;
+
     loadAdminPosts();
+  })
+  .catch(err => {
+    console.error("Delete error:", err);
   });
 }
-
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
 // INIT
 loadAdminPosts();
