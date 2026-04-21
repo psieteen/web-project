@@ -227,17 +227,23 @@ app.get('/analytics', auth, async (req, res) => {
     const drafts = await Post.find({ status: 'draft' })
       .sort({ createdAt: -1 })
       .select('title slug createdAt');
-    
+    const totalComments = await Comment.countDocuments();
+    const recentComments = await Comment.find()
+      .sort({ createdAt: -1 })
+      .limit(10);
+      
     res.json({
       totals: {
         posts: totalPosts,
         published: publishedPosts,
         drafts: draftPosts,
-        views: totalViews
+        views: totalViews,
+        comments: totalComments
       },
       mostViewed,
       recentPosts,
-      drafts
+      drafts,
+      recentComments
     });
     
   } catch (err) {
@@ -286,6 +292,31 @@ app.get('/comments/:postId', async (req, res) => {
     res.status(500).json({ ok: false, error: err.message });
   }
 });
+// ✅ Get all comments (for dashboard)
+app.get('/comments', auth, async (req, res) => {
+  try {
+    const comments = await Comment.find()
+      .sort({ createdAt: -1 })
+      .limit(20);
+    
+    res.json(comments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Delete comment (admin only)
+app.delete('/comments/:id', auth, async (req, res) => {
+  try {
+    await Comment.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Get comment count for analytics
+// (Add this inside the /analytics endpoint — update that route)
 
 // ✅ RSS Feed endpoint
 app.get('/feed.xml', async (req, res) => {

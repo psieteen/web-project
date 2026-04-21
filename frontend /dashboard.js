@@ -22,13 +22,73 @@ async function loadDashboard() {
     document.getElementById('published-posts').textContent = data.totals.published;
     document.getElementById('draft-posts').textContent = data.totals.drafts;
     document.getElementById('total-views').textContent = data.totals.views.toLocaleString();
-    
+    document.getElementById('total-comments').textContent = data.totals.comments;
+    renderRecentComments(data.recentComments);
     renderMostViewed(data.mostViewed);
     renderRecentPosts(data.recentPosts);
     renderDrafts(data.drafts);
     
   } catch (err) {
     console.error("Dashboard error:", err);
+  }
+}
+
+function renderRecentComments(comments) {
+  const container = document.getElementById('recent-comments');
+  if (!container) return;
+  
+  if (comments.length === 0) {
+    container.innerHTML = '<div class="empty-state">No comments yet</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  comments.forEach(comment => {
+    const item = document.createElement('div');
+    item.className = 'comment-item';
+    
+    const date = new Date(comment.createdAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    item.innerHTML = `
+      <div class="comment-item-main">
+        <div class="comment-header">
+          <span class="comment-author">${escapeHtml(comment.name)}</span>
+          <span class="comment-date">${date}</span>
+        </div>
+        <p class="comment-text">${escapeHtml(comment.message)}</p>
+        <div class="comment-meta">
+          <span class="comment-post-slug">on: ${escapeHtml(comment.postId)}</span>
+        </div>
+      </div>
+      <div class="comment-actions">
+        <button onclick="deleteComment('${comment._id}')" class="comment-delete-btn" title="Delete comment">🗑️</button>
+      </div>
+    `;
+    
+    container.appendChild(item);
+  });
+}
+
+// ✅ Delete comment function
+async function deleteComment(id) {
+  if (!confirm("Delete this comment?")) return;
+  
+  try {
+    const res = await fetch(`${API}/comments/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (res.ok) {
+      loadDashboard(); // Refresh
+    }
+  } catch (err) {
+    console.error("Delete error:", err);
   }
 }
 
