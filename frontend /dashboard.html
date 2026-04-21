@@ -37,9 +37,9 @@
         <div class="stat-value" id="draft-posts">—</div>
         <div class="stat-label">Drafts</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" id="total-comments">—</div>
-        <div class="stat-label">Comments</div>
+      <div class="stat-card highlight">
+        <div class="stat-value" id="total-views">—</div>
+        <div class="stat-label">Total Views</div>
       </div>
     </div>
     
@@ -50,16 +50,24 @@
       <a href="index.html" class="dashboard-btn secondary">👁️ View Site</a>
     </div>
     
-    <!-- Recent Posts -->
-    <section class="dashboard-section">
-      <h2>Recent Posts</h2>
-      <div id="recent-posts" class="recent-list"></div>
+    <!-- Drafts Reminder -->
+    <section class="dashboard-section" id="drafts-reminder" style="display: none;">
+      <div class="drafts-header">
+        <h2>📋 You have drafts waiting</h2>
+      </div>
+      <div id="drafts-list" class="drafts-list"></div>
     </section>
     
-    <!-- Recent Comments -->
+    <!-- Most Viewed Posts -->
     <section class="dashboard-section">
-      <h2>Recent Comments</h2>
-      <div id="recent-comments" class="recent-list"></div>
+      <h2>🔥 Most Viewed</h2>
+      <div id="most-viewed" class="recent-list"></div>
+    </section>
+    
+    <!-- Recent Posts -->
+    <section class="dashboard-section">
+      <h2>📄 Recent Posts</h2>
+      <div id="recent-posts" class="recent-list"></div>
     </section>
   </main>
 

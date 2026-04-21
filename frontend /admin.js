@@ -137,6 +137,7 @@ function resetForm() {
 }
 
 // ✅ Load posts for admin
+// ✅ Load posts for admin
 function loadAdminPosts() {
   fetch(`${API}/posts`, {
     headers: {
@@ -179,6 +180,7 @@ function loadAdminPosts() {
             <span class="admin-post-date">${date}</span>
             <span class="admin-post-type">${post.type || 'writing'}</span>
             <span class="admin-post-status ${post.status || 'draft'}">${post.status || 'draft'}</span>
+            <span class="admin-post-views">👁️ ${post.views || 0}</span>
           </div>
         </div>
         <div class="admin-post-actions">

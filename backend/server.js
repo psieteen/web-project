@@ -61,6 +61,7 @@ const postSchema = new mongoose.Schema({
   excerpt: { type: String, default: '' }, // ✅ Added for better previews
   type: { type: String, enum: ['writing', 'poetry'], default: 'writing' }, // ✅ Added to separate content types
   status: { type: String, enum: ['draft', 'published'], default: 'draft' }, 
+  views: {type: Number, default: 0},
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -180,7 +181,11 @@ app.get('/posts', async (req, res) => {
 
 app.get('/posts/:slug', async (req, res) => {
   try {
-    const post = await Post.findOne({ slug: req.params.slug });
+    const post = await Post.findOneAndUpdate(
+      { slug: req.params.slug },
+      {$inc: {views: 1}},
+      {new: true}
+    );
 
     if (!post) {
       return res.status(404).json({ ok: false, error: "Post not found" });
@@ -189,6 +194,54 @@ app.get('/posts/:slug', async (req, res) => {
     res.json(post);
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ✅ Analytics endpoint for dashboard
+app.get('/analytics', auth, async (req, res) => {
+  try {
+    // Total stats
+    const totalPosts = await Post.countDocuments();
+    const publishedPosts = await Post.countDocuments({ status: 'published' });
+    const draftPosts = await Post.countDocuments({ status: 'draft' });
+    
+    // Views stats
+    const viewsAggregate = await Post.aggregate([
+      { $group: { _id: null, totalViews: { $sum: '$views' } } }
+    ]);
+    const totalViews = viewsAggregate[0]?.totalViews || 0;
+    
+    // Most viewed posts
+    const mostViewed = await Post.find({ status: 'published' })
+      .sort({ views: -1 })
+      .limit(5)
+      .select('title slug views createdAt');
+    
+    // Recently published
+    const recentPosts = await Post.find({ status: 'published' })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('title slug views status createdAt');
+    
+    // Drafts
+    const drafts = await Post.find({ status: 'draft' })
+      .sort({ createdAt: -1 })
+      .select('title slug createdAt');
+    
+    res.json({
+      totals: {
+        posts: totalPosts,
+        published: publishedPosts,
+        drafts: draftPosts,
+        views: totalViews
+      },
+      mostViewed,
+      recentPosts,
+      drafts
+    });
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
